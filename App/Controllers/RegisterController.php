@@ -3,10 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Register;
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
+use App\Models\SendEmail;
 
 class RegisterController
 {
@@ -37,7 +34,8 @@ class RegisterController
                     $result = $obRegister->insert($_POST['firstName'], $_POST['secondName'], $_POST['email'], $_POST['birthDate'], $_POST['password'], $key[0]);
                     
                     if ($result->rowCount() > 0) {
-                        $this->confirmEmail($_POST['email'], $_POST['firstName'], $_POST['secondName'], $key[0]);
+                        $obSendEmail = new SendEmail;
+                        $obSendEmail->sendEmail($_POST['email'], $_POST['firstName'], $_POST['secondName'], $key[0]);
                         header('Location: ?router=Site/login/');
                         return $result;
                     }
@@ -59,39 +57,6 @@ class RegisterController
         } else {
             return null;
         }
-    }
-
-    private function confirmEmail($email, $firstName, $secondName, $key)
-    {
-        $mail = new PHPMailer(true);
-
-
-        //Server settings
-        //$mail->SMTPDebug = SMTP::DEBUG_SERVER;
-        $mail->CharSet = "UTF-8";
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.mailtrap.io';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'a6d5ae6e98e51c';
-        $mail->Password   = '930d035735a35d';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 2525;
-
-        //Recipients
-        $mail->setFrom('filipe@caffe.com', 'Filipe');
-        $mail->addAddress($email, $firstName . ' ' . $secondName);     //Add a recipient
-
-        //Content
-        $mail->isHTML(true);                                  //Set email format to HTML
-        $mail->Subject = 'Confirmar o e-mail';
-        $mail->Body    = "<h2>Olá Sr(a). $firstName $secondName.</h2><br>Para finalizarmos o 
-                            seu cadastro, confirme seu e-mail clicando no link abaixo:<br>
-                            <a href='http://localhost/estudos/loginsystem/?router=Site/ConfirmEmailController/$key'>Confirme Aqui</a>";
-        $mail->AltBody = "Olá Sr(a). $firstName $secondName.\n Para finalizarmos o 
-        seu cadastro, confirme seu e-mail clicando no link abaixo:\n
-        http://localhost/estudos/loginsystem/?router=Site/ConfirmEmailController/$key ";
-
-        $mail->send();
     }
 }
 $register = new RegisterController;
