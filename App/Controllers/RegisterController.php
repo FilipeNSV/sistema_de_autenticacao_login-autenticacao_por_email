@@ -2,9 +2,11 @@
 
 namespace App\Controllers;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-
 use App\Models\Register;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 
 class RegisterController
 {
@@ -28,15 +30,21 @@ class RegisterController
                 if (!isset($validEmail)) {
 
                     $obRegister = new Register;
-                    $result = $obRegister->insert($_POST['firstName'], $_POST['secondName'], $_POST['email'], $_POST['birthDate'], $_POST['password']);
 
+                    $confirmPass = password_hash($_POST['email'] . date("Y-m-d H:i:s"), PASSWORD_DEFAULT);
+                    $key = explode('/', $confirmPass);
+
+                    $result = $obRegister->insert($_POST['firstName'], $_POST['secondName'], $_POST['email'], $_POST['birthDate'], $_POST['password'], $key[0]);
+                    
                     if ($result->rowCount() > 0) {
-
+                        $this->confirmEmail($_POST['email'], $_POST['firstName'], $_POST['secondName'], $key[0]);
                         header('Location: ?router=Site/login/');
                         return $result;
                     }
                 } else {
-                    echo "Email já cadastrado";                    
+                    echo "<h2 style='color: red; max-width: 500px; border: solid 1px black; border-radius: 10px; padding: 10px; background-color: antiquewhite;'>
+                            - Erro:<br><br> - E-mail já cadastradon no banco de dados!<br><br> - Registre outro e-mail.
+                         </h2>";
                 }
             }
         }
@@ -51,6 +59,39 @@ class RegisterController
         } else {
             return null;
         }
+    }
+
+    private function confirmEmail($email, $firstName, $secondName, $key)
+    {
+        $mail = new PHPMailer(true);
+
+
+        //Server settings
+        //$mail->SMTPDebug = SMTP::DEBUG_SERVER;
+        $mail->CharSet = "UTF-8";
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.mailtrap.io';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'a6d5ae6e98e51c';
+        $mail->Password   = '930d035735a35d';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 2525;
+
+        //Recipients
+        $mail->setFrom('filipe@caffe.com', 'Filipe');
+        $mail->addAddress($email, $firstName . ' ' . $secondName);     //Add a recipient
+
+        //Content
+        $mail->isHTML(true);                                  //Set email format to HTML
+        $mail->Subject = 'Confirmar o e-mail';
+        $mail->Body    = "<h2>Olá Sr(a). $firstName $secondName.</h2><br>Para finalizarmos o 
+                            seu cadastro, confirme seu e-mail clicando no link abaixo:<br>
+                            <a href='http://localhost/estudos/loginsystem/?router=Site/ConfirmEmailController/$key'>Confirme Aqui</a>";
+        $mail->AltBody = "Olá Sr(a). $firstName $secondName.\n Para finalizarmos o 
+        seu cadastro, confirme seu e-mail clicando no link abaixo:\n
+        http://localhost/estudos/loginsystem/?router=Site/ConfirmEmailController/$key ";
+
+        $mail->send();
     }
 }
 $register = new RegisterController;

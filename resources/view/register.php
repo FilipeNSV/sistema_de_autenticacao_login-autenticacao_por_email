@@ -68,7 +68,7 @@
 
                 <div class="g-recaptcha" data-sitekey="6LdG9_4fAAAAAKT741HW3iwZWCkkHJPNS2-67hoK"></div><br>
 
-                <button type="submit" class="btn mt-auto btn-outline-light" name="register" value="Insert">Register</button>
+                <button type="submit" class="btn mt-auto btn-outline-light" name="register" id="btnRegister" value="Insert">Register</button>
 
             </div><br><br><br><br>
         </form>
@@ -84,7 +84,7 @@
             return false;
         }
     </script>
-
+    <script src="resources/js/script.js"></script>
 </body>
 
 </html>

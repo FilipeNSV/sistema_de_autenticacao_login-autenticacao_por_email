@@ -11,11 +11,11 @@ class Login
         $db = new DataBase;
         $conn = $db->connection();
 
-        $cmd = "SELECT email, password FROM user WHERE email=:EM LIMIT 1";        
+        $cmd = "SELECT email, password, sit_user_id FROM user WHERE email=:EM LIMIT 1";        
         $stmt = $conn->prepare($cmd);
         $stmt->bindValue(':EM', $email);
 
         $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 }

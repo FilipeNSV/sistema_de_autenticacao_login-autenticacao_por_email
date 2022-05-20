@@ -11,21 +11,23 @@ class LoginController
         if (isset($_POST['login']) && !empty($_POST['login'])) {
 
             $data = $this->getData();
-            //var_dump($data);
-
-            if (!is_null($data)) {
-                $password = $data[0]['password'];                
+            
+            if ($data['sit_user_id'] != 1) {
+                echo "<h2 style='color: red; max-width: 500px; border: solid 1px black; border-radius: 10px; padding: 10px; background-color: antiquewhite;'>
+                - Erro:<br><br> - E-mail não confirmado!<br><br> - Verifique sua caixa de entrada de e-mail!
+                </h2>";
+            } elseif (!is_null($data)) {
+                $password = $data['password'];                
                 
-                if ($password == $_POST['passwordLogin']) {                   
+                if ($password == $_POST['passwordLogin']) {
                     header("Location: ?router=Site/userPanel/");
                 } else {
-                    
-                    echo "<h1 style='color: red;'>Email ou Senha Invalido(a)!</h1>";                
+
+                    echo "<h1 style='color: red;'>Email ou Senha Invalido(a)!</h1>";
                 }
-
             } else {
-
-                echo "<h1 style='color: red;'>Email ou Senha Invalido(a)!</h1>";                
+                
+                echo "<h1 style='color: red;'>Email ou Senha Invalido(a)!</h1>";
             }
         }
     }
@@ -44,6 +46,3 @@ class LoginController
 
 $obLoginController = new LoginController;
 $obLoginController->login();
-
-//$result = $obLoginController->getData();
-//var_dump($result);
